@@ -40,6 +40,7 @@
     "react": "^15.0.0"
   },
   "dependencies": {
+    "bf-solid": "^2.7.0",
     "jsonschema": "^1.0.2",
     "lodash.topath": "^4.5.2",
     "prop-types": "^15.5.8",

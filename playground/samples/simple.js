@@ -40,7 +40,7 @@ module.exports = {
     },
     age: {
       "ui:widget": "updown",
-      "ui:title": "Age of person",
+      "ui:title": "Age of Peep",
       "ui:description": "(earthian year)",
     },
     bio: {

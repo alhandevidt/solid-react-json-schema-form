@@ -6,6 +6,7 @@ import "codemirror/mode/javascript/javascript";
 import { shouldRender } from "../src/utils";
 import { samples } from "./samples";
 import Form from "../src";
+import CheckboxWidget from "../src/components/widgets/CheckboxWidget";
 
 // Import a few CodeMirror themes; these are used to match alternative
 // bootstrap ones.
@@ -328,6 +329,26 @@ class CopyLink extends Component {
   }
 }
 
+const CustomCheckbox = function(props) {
+  return (
+    <CheckboxWidget {...props} className="solid stuff" label='test this'/>
+  );
+};
+
+const widgets = {
+  CheckboxWidget: CustomCheckbox
+};
+
+function Tpl(props) {
+  const {id, label, required, children} = props;
+  return (
+    <div className="solid">
+      <label className="form-label" htmlFor={id}>{label}{required ? "*" : null}</label>
+      {children}
+    </div>
+  );
+};
+
 class App extends Component {
   constructor(props) {
     super(props);
@@ -466,11 +487,13 @@ class App extends Component {
           {this.state.form &&
             <Form
               ArrayFieldTemplate={ArrayFieldTemplate}
+              FieldTemplate={Tpl}
               liveValidate={liveValidate}
               schema={schema}
               uiSchema={uiSchema}
               formData={formData}
               onChange={this.onFormDataChange}
+              widgets={widgets}
               onSubmit={({ formData }) =>
                 console.log("submitted formData", formData)}
               fields={{ geo: GeoPosition }}

@@ -27,6 +27,10 @@ app.get("/", function(req, res) {
   res.sendFile(path.join(__dirname, "playground", "index.html"));
 });
 
+app.get("/solid.2.7.0.min.css", function(req, res) {
+  res.sendFile(path.join(__dirname, "playground", "solid.2.7.0.min.css"));
+});
+
 app.listen(port, host, function(err) {
   if (err) {
     console.log(err);
