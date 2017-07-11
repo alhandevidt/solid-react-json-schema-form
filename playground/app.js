@@ -7,6 +7,7 @@ import { shouldRender } from "../src/utils";
 import { samples } from "./samples";
 import Form from "../src";
 import CheckboxWidget from "../src/components/widgets/CheckboxWidget";
+import DescriptionField from "../src/components/fields/DescriptionField";
 
 // Import a few CodeMirror themes; these are used to match alternative
 // bootstrap ones.
@@ -327,26 +328,199 @@ class CopyLink extends Component {
       </div>
     );
   }
-}
-
-const CustomCheckbox = function(props) {
-  return (
-    <CheckboxWidget {...props} className="solid stuff" label='test this'/>
-  );
 };
 
-const widgets = {
-  CheckboxWidget: CustomCheckbox
-};
-
-function Tpl(props) {
-  const {id, label, required, children} = props;
+function SolidCheckboxWidget(props) {
+  const {
+    schema,
+    id,
+    value,
+    required,
+    disabled,
+    readonly,
+    label,
+    autofocus,
+    onChange,
+  } = props;
   return (
-    <div className="solid">
-      <label className="form-label" htmlFor={id}>{label}{required ? "*" : null}</label>
-      {children}
+    <div className={`checkbox-field ${disabled || readonly ? "disabled" : ""}`}>
+      {schema.description &&
+        <DescriptionField description={schema.description} />}
+        <input
+          type="checkbox"
+          className="checkbox"
+          id={id}
+          checked={typeof value === "undefined" ? false : value}
+          required={required}
+          disabled={disabled || readonly}
+          autoFocus={autofocus}
+          onChange={event => onChange(event.target.checked)}
+        />
+        <label htmlFor={id}>
+          {label}
+      </label>
     </div>
   );
+}
+
+SolidCheckboxWidget.defaultProps = {
+  autofocus: false,
+};
+
+
+function SolidSelectWidget(props) {
+  const {
+    schema,
+    id,
+    options,
+    value,
+    required,
+    disabled,
+    readonly,
+    multiple,
+    autofocus,
+    onChange,
+    onBlur,
+    placeholder,
+  } = props;
+  const { enumOptions } = options;
+  const emptyValue = multiple ? [] : "";
+  return (
+    <select
+      id={id}
+      multiple={multiple}
+      className="select"
+      value={typeof value === "undefined" ? emptyValue : value}
+      required={required}
+      disabled={disabled || readonly}
+      autoFocus={autofocus}
+      onBlur={
+        onBlur &&
+        (event => {
+          const newValue = getValue(event, multiple);
+          onBlur(id, processValue(schema, newValue));
+        })
+      }
+      onChange={event => {
+        const newValue = getValue(event, multiple);
+        onChange(processValue(schema, newValue));
+      }}>
+      {!multiple &&
+        !schema.default &&
+        <option value="">
+          {placeholder}
+        </option>}
+      {enumOptions.map(({ value, label }, i) => {
+        return (
+          <option key={i} value={value}>
+            {label}
+          </option>
+        );
+      })}
+    </select>
+  );
+}
+
+SolidSelectWidget.defaultProps = {
+  autofocus: false,
+};
+
+export default function SolidErrorListTemplate(props) {
+  const { errors } = props;
+  return (
+    <div>
+      {errors.map((error, i) => {
+        return (
+            <div key={i} className="page-message page-message--error">
+              <div className="page-message__text">
+                <svg className="page-message__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 38 38" aria-hidden="true">
+                  <title>Error</title>
+                  <path d="M19 16.878l-6.364-6.363-2.12 2.12L16.878 19l-6.365 6.364 2.12 2.12L19 21.122l6.364 6.365 2.12-2.12L21.122 19l6.365-6.364-2.12-2.12L19 16.877z"/>
+                </svg>
+                {error.stack}
+              </div>
+            </div>
+        )})}
+    </div>);
+}
+
+//
+// export default function ErrorList(props) {
+//   const { errors } = props;
+//   return (
+//     <div className="panel panel-danger errors">
+//       <div className="panel-heading">
+//         <h3 className="panel-title">Errors</h3>
+//       </div>
+//       <ul className="list-group">
+//         {errors.map((error, i) => {
+//           return (
+//             <li key={i} className="list-group-item text-danger">
+//               {error.stack}
+//             </li>
+//           );
+//         })}
+//       </ul>
+//     </div>
+//   );
+// }
+
+function Label(props) {
+  const { label, required, id } = props;
+  if (!label) {
+    // See #312: Ensure compatibility with old versions of React.
+    return <div />;
+  }
+  return (
+    <label className="control-label" htmlFor={id}>
+      {required ? label + "*" : label}
+    </label>
+  );
+}
+
+
+function SolidFieldTemplate(props) {
+  const {
+    id,
+    classNames,
+    label,
+    children,
+    errors,
+    help,
+    description,
+    hidden,
+    required,
+    displayLabel,
+  } = props;
+  if (hidden) {
+    return children;
+  }
+
+  return (
+    <div className={classNames}>
+      {displayLabel && <Label label={label} required={required} id={id} />}
+      {displayLabel && description ? description : null}
+      {children}
+      {errors}
+      {help}
+    </div>
+  );
+};
+
+const solidwidgets = {
+  CheckboxWidget: SolidCheckboxWidget,
+  SelectWidget: SolidSelectWidget
+};
+
+function SolidForm(props) {
+  return <Form showErrorList={true}
+               ErrorList={SolidErrorListTemplate}
+               FieldTemplate={SolidFieldTemplate}
+               widgets={solidwidgets} {...props}>
+    <div>
+      <button className="button button--secondary" type="submit">Submit</button>
+    </div>
+  </Form>;
 };
 
 class App extends Component {
@@ -449,7 +623,7 @@ class App extends Component {
                 schema={liveValidateSchema}
                 formData={liveValidate}
                 onChange={this.setLiveValidate}>
-                <div />
+                <div/>
               </Form>
             </div>
             <div className="col-sm-2">
@@ -485,15 +659,13 @@ class App extends Component {
         </div>
         <div className="col-sm-5">
           {this.state.form &&
-            <Form
+            <SolidForm
               ArrayFieldTemplate={ArrayFieldTemplate}
-              FieldTemplate={Tpl}
               liveValidate={liveValidate}
               schema={schema}
               uiSchema={uiSchema}
               formData={formData}
               onChange={this.onFormDataChange}
-              widgets={widgets}
               onSubmit={({ formData }) =>
                 console.log("submitted formData", formData)}
               fields={{ geo: GeoPosition }}
@@ -515,7 +687,7 @@ class App extends Component {
                   />
                 </div>
               </div>
-            </Form>}
+            </SolidForm>}
         </div>
       </div>
     );
