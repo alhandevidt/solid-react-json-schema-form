@@ -70,6 +70,55 @@ SolidCheckboxWidget.defaultProps = {
   autofocus: false,
 };
 
+function selectValue(value, selected, all) {
+  const at = all.indexOf(value);
+  const updated = selected.slice(0, at).concat(value, selected.slice(at));
+  // As inserting values at predefined index positions doesn't work with empty
+  // arrays, we need to reorder the updated selection to match the initial order
+  return updated.sort((a, b) => all.indexOf(a) > all.indexOf(b));
+}
+
+function deselectValue(value, selected) {
+  return selected.filter(v => v !== value);
+}
+
+function SolidCheckboxesWidget(props) {
+  const { id, disabled, options, value, autofocus, readonly, onChange } = props;
+  const { enumOptions, inline } = options;
+  return (
+    <div className="CheckboxesWidget" id={id}>
+      {enumOptions.map((option, index) => {
+        const checked = value.indexOf(option.value) !== -1;
+        const disabledCls = disabled || readonly ? "disabled" : "";
+        const checkbox = (
+          <span>
+            <input
+              type="checkbox"
+              className="checkbox"
+              id={`${id}_${index}`}
+              checked={checked}
+              disabled={disabled || readonly}
+              autoFocus={autofocus && index === 0}
+              onChange={event => {
+                const all = enumOptions.map(({ value }) => value);
+                if (event.target.checked) {
+                  onChange(selectValue(option.value, value, all));
+                } else {
+                  onChange(deselectValue(option.value, value));
+                }
+              }}
+            />
+            <label htmlFor={`${id}_${index}`}>{option.label}</label>
+          </span>
+        );
+        return <div key={index} className={`checkbox-inline ${disabledCls}`}>
+              {checkbox}
+            </div>
+      })}
+    </div>
+  );
+}
+
 function SolidTextareaWidget(props) {
   const {
     id,
@@ -348,7 +397,8 @@ const solidwidgets = {
   RangeWidget: SolidRangeWidget,
   UpDownWidget: SolidUpDownWidget,
   TextareaWidget: SolidTextareaWidget,
-  PasswordWidget: SolidPasswordWidget
+  PasswordWidget: SolidPasswordWidget,
+  CheckboxesWidget: SolidCheckboxesWidget
 };
 
 const solidFields = {

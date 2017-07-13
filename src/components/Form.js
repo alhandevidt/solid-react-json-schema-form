@@ -110,7 +110,6 @@ export default class Form extends Component {
   onSubmit = event => {
     event.preventDefault();
     this.setState({ status: "submitted" });
-
     if (!this.props.noValidate) {
       const { errors, errorSchema } = this.validate(this.state.formData);
       if (Object.keys(errors).length > 0) {

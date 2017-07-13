@@ -22,6 +22,19 @@ const schemas = {
         type: "integer",
         title: "Age",
       },
+      animal: {
+        type: "string",
+        title: "A multiple choices list",
+      },
+      multipleChoicesList: {
+        type: "array",
+        title: "Boyot",
+        items: {
+          type: "string",
+          enum: ["foo", "bar", "fuzz", "qux"],
+        },
+        uniqueItems: true,
+      },
       bio: {
         type: "string",
         title: "Bio",
@@ -48,6 +61,12 @@ const schemas = {
       "ui:title": "Age of Person",
       "ui:description": "(earthian year)",
     },
+    animal: {
+      "ui:widget": "multiselect",
+    },
+    multipleChoicesList: {
+      "ui:widget": "checkboxes",
+    },
     bio: {
       "ui:widget": "textarea",
     },
@@ -68,6 +87,7 @@ const schemas = {
     firstName: "Chuck",
     lastName: "Norris",
     age: 75,
+    multipleChoicesList: ["foo", "bar"],
     bio: "Roundhouse kicking asses since 1940",
     password: "noneed"
   },
