@@ -23,8 +23,12 @@ const schemas = {
         title: "Age",
       },
       animal: {
-        type: "string",
-        title: "A multiple choices list",
+        type: "array",
+        title: "Animals",
+        items: {
+          type: "string",
+          enum: ["kitty", "puppy", "pony", "ox"],
+        },
       },
       multipleChoicesList: {
         type: "array",

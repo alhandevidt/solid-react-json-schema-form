@@ -11,6 +11,9 @@ import {
 import validateFormData from "../validate";
 import forms from "..";
 import { rangeSpec } from "../utils";
+import widgets from "../components/widgets";
+
+console.log(widgets.MultiSelectWidget);
 
 function SolidDescriptionField(props) {
   const { id, description } = props;
@@ -398,7 +401,8 @@ const solidwidgets = {
   UpDownWidget: SolidUpDownWidget,
   TextareaWidget: SolidTextareaWidget,
   PasswordWidget: SolidPasswordWidget,
-  CheckboxesWidget: SolidCheckboxesWidget
+  CheckboxesWidget: SolidCheckboxesWidget,
+  multiselect: widgets.MultiSelectWidget
 };
 
 const solidFields = {
